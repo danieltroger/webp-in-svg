@@ -5,7 +5,7 @@ Most tools that minify svgs don't minify the images in the svgs. This finds all 
 Example image gets reduced from 6.1MB to 785KB without any visible quality loss.
 
 
-GPT written probably super flawed but works in my one case test images.
+Mostly GPT written probably super flawed but works in my one case test images.
 
 
 Example usage:
