@@ -54,7 +54,7 @@ try {
       fs.writeFileSync(inputFileName, Buffer.from(base64Data, "base64"));
 
       // Convert the image to WebP using ImageMagick
-      execSync(`magick convert ${inputFileName} ${outputFileName}`);
+      execSync(`magick convert ${inputFileName} -quality 90 ${outputFileName}`);
 
       // Read the WebP file and convert it back to a data URL
       const webpData = fs.readFileSync(outputFileName);
