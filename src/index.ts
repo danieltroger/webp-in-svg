@@ -28,7 +28,12 @@ try {
   // Find all <image> elements with data URLs
   const images = document.querySelectorAll("image");
   images.forEach((img) => {
-    const href = img.getAttribute("xlink:href") || img.getAttribute("href");
+    let usedAttribute = "xlink:href";
+    let href = img.getAttribute("xlink:href");
+    if (!href) {
+      usedAttribute = "href";
+      href = img.getAttribute("href");
+    }
     if (
       href &&
       (href.startsWith("data:image/png") ||
@@ -56,8 +61,7 @@ try {
       const webpDataUrl = `data:image/webp;base64,${webpData.toString("base64")}`;
 
       // Update the image href with the new data URL
-      img.setAttribute("xlink:href", webpDataUrl);
-      img.setAttribute("href", webpDataUrl);
+      img.setAttribute(usedAttribute, webpDataUrl);
 
       // Clean up temporary files
       fs.unlinkSync(inputFileName);
