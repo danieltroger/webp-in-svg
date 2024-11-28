@@ -6,3 +6,11 @@ Example image gets reduced from 6.1MB to 785KB without any visible quality loss.
 
 
 GPT written probably super flawed but works in my one case test images.
+
+
+Example usage:
+
+```bash
+yarn # Only needed once to install dependencies
+yarn start path/to/image.svg
+```
