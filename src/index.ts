@@ -2,6 +2,9 @@ import { promises as fs, existsSync } from "fs";
 import { JSDOM } from "jsdom";
 import { exec } from "child_process";
 import { Command } from "commander";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 const program = new Command();
 
@@ -55,7 +58,7 @@ await Promise.all(
       await fs.writeFile(inputFileName, Buffer.from(base64Data, "base64"));
 
       // Convert the image to WebP using ImageMagick
-      await exec(
+      await execAsync(
         `magick convert ${inputFileName} -quality 90 ${outputFileName}`,
       );
 
