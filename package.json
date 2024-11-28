@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "start": "node --loader @swc-node/register/esm src/index.ts"
+  },
+  "packageManager": "yarn@4.5.3",
+  "dependencies": {
+    "@swc-node/register": "^1.10.9",
+    "@swc/core": "^1.9.3",
+    "@types/node": "^22.10.1",
+    "commander": "^12.1.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.1",
+    "typescript": "^5.7.2"
+  },
+  "dependenciesMeta": {
+    "commander@12.1.0": {
+      "unplugged": true
+    }
+  }
+}

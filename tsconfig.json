@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "esnext",
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "composite": true,
+    "module": "ESNext",
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
