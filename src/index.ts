@@ -1,6 +1,6 @@
-import fs from "fs";
+import { promises as fs, existsSync } from "fs";
 import { JSDOM } from "jsdom";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import { Command } from "commander";
 
 const program = new Command();
@@ -14,20 +14,21 @@ if (!svgFile) {
   process.exit(1);
 }
 
-if (!fs.existsSync(svgFile)) {
+if (!existsSync(svgFile)) {
   console.error(`Error: File "${svgFile}" does not exist.`);
   process.exit(1);
 }
 
-try {
-  // Read and parse the SVG file
-  const svgContent = fs.readFileSync(svgFile, "utf-8");
-  const dom = new JSDOM(svgContent);
-  const document = dom.window.document;
+// Read and parse the SVG file
+const svgContent = await fs.readFile(svgFile, "utf-8");
+const jsdomInstance = new JSDOM("");
+const domParser = new jsdomInstance.window.DOMParser();
+const document = domParser.parseFromString(svgContent, "image/svg+xml");
 
-  // Find all <image> elements with data URLs
-  const images = document.querySelectorAll("image");
-  images.forEach((img) => {
+// Find all <image> elements with data URLs
+const images = document.querySelectorAll("image");
+await Promise.all(
+  [...images].map(async (img) => {
     let usedAttribute = "xlink:href";
     let href = img.getAttribute("xlink:href");
     if (!href) {
@@ -47,35 +48,38 @@ try {
       const extension = header.match(/image\/(png|gif|jpg)/)?.[1];
       if (!extension) return;
 
-      const inputFileName = `temp.${extension}`;
-      const outputFileName = `temp.webp`;
+      const inputFileName = `temp-${randomString()}.${extension}`;
+      const outputFileName = `temp-${randomString()}.webp`;
 
       // Write the base64 data to a temporary file
-      fs.writeFileSync(inputFileName, Buffer.from(base64Data, "base64"));
+      await fs.writeFile(inputFileName, Buffer.from(base64Data, "base64"));
 
       // Convert the image to WebP using ImageMagick
-      execSync(`magick convert ${inputFileName} -quality 90 ${outputFileName}`);
+      await exec(
+        `magick convert ${inputFileName} -quality 90 ${outputFileName}`,
+      );
 
       // Read the WebP file and convert it back to a data URL
-      const webpData = fs.readFileSync(outputFileName);
+      const webpData = await fs.readFile(outputFileName);
       const webpDataUrl = `data:image/webp;base64,${webpData.toString("base64")}`;
 
       // Update the image href with the new data URL
       img.setAttribute(usedAttribute, webpDataUrl);
 
       // Clean up temporary files
-      fs.unlinkSync(inputFileName);
-      fs.unlinkSync(outputFileName);
+      await fs.unlink(inputFileName);
+      await fs.unlink(outputFileName);
 
       console.log("Converted and updated image to WebP data URL.");
     }
-  });
+  }),
+);
 
-  // Write the updated SVG content to a new file
-  const newFileName = svgFile.replace(/\.svg$/, ".small.svg");
-  fs.writeFileSync(newFileName, dom.serialize());
-  console.log(`Updated SVG saved to "${newFileName}"`);
-} catch (error) {
-  console.error("Error:", error.message);
-  process.exit(1);
+// Write the updated SVG content to a new file
+const newFileName = svgFile.replace(/\.svg$/, ".small.svg");
+await fs.writeFile(newFileName, document.documentElement.outerHTML);
+console.log(`Updated SVG saved to "${newFileName}"`);
+
+function randomString() {
+  return (Math.random() * 2e17).toString(36);
 }
